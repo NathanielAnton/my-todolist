@@ -33,6 +33,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Todo::class, orphanRemoval: true)]
+    private $todos;
+
+    public function __construct()
+    {
+        $this->todos = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -112,5 +120,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+    }
+
+     /**
+     * @return Collection|Todo[]
+     */
+    public function getTodos(): Collection
+    {
+        return $this->todos;
+    }
+
+    public function addTodo(Todo $todo): self
+    {
+        if (!$this->todos->contains($todo)) {
+            $this->todos[] = $todo;
+            $todo->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTodo(Todo $todo): self
+    {
+        if ($this->todos->removeElement($todo)) {
+            // set the owning side to null (unless already changed)
+            if ($todo->getUser() === $this) {
+                $todo->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
