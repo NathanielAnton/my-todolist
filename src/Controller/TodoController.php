@@ -14,29 +14,33 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/todo')]
 final class TodoController extends AbstractController
 {
-    #[Route(name: 'app_todo_index', methods: ['GET'])]
+    #[Route('/', name: 'app_todo_index', methods: ['GET'])]
     public function index(TodoRepository $todoRepository): Response
     {
+        // Récupérer seulement les todos de l'utilisateur connecté
+        $todos = $todoRepository->findBy(['user' => $this->getUser()]);
+
         return $this->render('todo/index.html.twig', [
-            'todos' => $todoRepository->findAll(),
+            'todos' => $todos,
         ]);
     }
 
     #[Route('/new', name: 'app_todo_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, TodoRepository $todoRepository): Response
     {
         $todo = new Todo();
         $form = $this->createForm(TodoType::class, $todo);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($todo);
-            $entityManager->flush();
+            // Associer l'utilisateur connecté
+            $todo->setUser($this->getUser());
+            $todoRepository->save($todo, true);
 
             return $this->redirectToRoute('app_todo_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('todo/new.html.twig', [
+        return $this->renderForm('todo/new.html.twig', [
             'todo' => $todo,
             'form' => $form,
         ]);
