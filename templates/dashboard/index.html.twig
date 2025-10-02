@@ -3,87 +3,113 @@
 {% block title %}Dashboard - Ma Todo List{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 style="text-align:center;"><i class="fas fa-tachometer-alt" ></i> Tableau de Bord</h1>
+        <p style="color:black; text-align:center;">Bienvenue sur votre espace de gestion des tâches</p>
+    </div>
+    
+    <!-- Statistiques -->
     <div class="row">
-        <div class="col-md-12">
-            <h1>Dashboard</h1>
-            
-            <!-- Statistiques -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card text-white bg-primary">
-                        <div class="card-body">
-                            <h5 class="card-title">Total</h5>
-                            <h2>{{ total_count }}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-success">
-                        <div class="card-body">
-                            <h5 class="card-title">Terminées</h5>
-                            <h2>{{ completed_count }}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-warning">
-                        <div class="card-body">
-                            <h5 class="card-title">En attente</h5>
-                            <h2>{{ pending_count }}</h2>
-                        </div>
-                    </div>
+        <div class="col-md-4">
+            <div class="card stats-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="card-title">Total des Tâches</div>
+                    <div class="card-value">{{ total_count }}</div>
+                    <small><i class="fas fa-tasks"></i> Toutes vos tâches</small>
                 </div>
             </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stats-card bg-success text-white">
+                <div class="card-body">
+                    <div class="card-title">Terminées</div>
+                    <div class="card-value">{{ completed_count }}</div>
+                    <small><i class="fas fa-check-circle"></i> Tâches accomplies</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stats-card bg-warning text-white">
+                <div class="card-body">
+                    <div class="card-title">En attente</div>
+                    <div class="card-value">{{ pending_count }}</div>
+                    <small><i class="fas fa-clock"></i> Tâches en cours</small>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <!-- Actions -->
-            <div class="mb-3">
+    <!-- Actions rapides -->
+    <div class="content-card">
+        <div class="card-body">
+            <div class="d-flex gap-2 flex-wrap">
                 <a href="{{ path('app_todo_new') }}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nouvelle tâche
                 </a>
-                <a href="{{ path('app_todo_index') }}" class="btn btn-secondary">
+                <a href="{{ path('app_todo_index') }}" class="btn btn-outline-primary">
                     <i class="fas fa-list"></i> Voir toutes les tâches
                 </a>
+                {% if completed_count > 0 %}
+                    <a href="{{ path('app_todo_index', {'filter': 'completed'}) }}" class="btn btn-success">
+                        <i class="fas fa-check"></i> Voir les terminées
+                    </a>
+                {% endif %}
+                {% if pending_count > 0 %}
+                    <a href="{{ path('app_todo_index', {'filter': 'pending'}) }}" class="btn btn-warning">
+                        <i class="fas fa-clock"></i> Voir les en cours
+                    </a>
+                {% endif %}
             </div>
+        </div>
+    </div>
 
-            <!-- Liste récente -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>Mes tâches récentes</h5>
-                </div>
-                <div class="card-body">
-                    {% if todos|length > 0 %}
-                        <div class="list-group">
-                            {% for todo in todos|slice(0, 5) %}
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-1 {% if todo.isCompleted %}text-decoration-line-through text-muted{% endif %}">
-                                                {{ todo.task }}
-                                            </h6>
-                                            {% if todo.dueDate %}
-                                                <small class="text-muted">
-                                                    Échéance: {{ todo.dueDate|date('d/m/Y H:i') }}
-                                                </small>
-                                            {% endif %}
-                                        </div>
-                                        <div>
-                                            <span class="badge bg-{{ todo.isCompleted ? 'success' : 'warning' }}">
-                                                {{ todo.isCompleted ? 'Terminé' : 'En cours' }}
-                                            </span>
-                                            <a href="{{ path('app_todo_edit', {'id': todo.id}) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        </div>
+    <!-- Liste récente -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5><i class="fas fa-history"></i> Mes tâches récentes</h5>
+        </div>
+        <div class="card-body">
+            {% if todos|length > 0 %}
+                <div class="task-list">
+                    {% for todo in todos|slice(0, 5) %}
+                        <div class="task-item {% if todo.isCompleted %}completed{% endif %}">
+                            <div class="task-content">
+                                <div class="task-text">{{ todo.task }}</div>
+                                {% if todo.dueDate %}
+                                    <div class="task-meta">
+                                        <i class="fas fa-calendar"></i> Échéance: {{ todo.dueDate|date('d/m/Y H:i') }}
                                     </div>
-                                </div>
-                            {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="task-actions">
+                                <span class="badge bg-{{ todo.isCompleted ? 'success' : 'warning' }}">
+                                    {{ todo.isCompleted ? 'Terminé' : 'En cours' }}
+                                </span>
+                                <a href="{{ path('app_todo_edit', {'id': todo.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
                         </div>
-                    {% else %}
-                        <p class="text-muted">Aucune tâche pour le moment.</p>
-                    {% endif %}
+                    {% endfor %}
                 </div>
-            </div>
+                
+                {% if todos|length > 5 %}
+                    <div class="text-center mt-3">
+                        <a href="{{ path('app_todo_index') }}" class="btn btn-outline-primary">
+                            Voir toutes les tâches ({{ todos|length }} au total)
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Aucune tâche pour le moment.</p>
+                    <a href="{{ path('app_todo_new') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Créer votre première tâche
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
