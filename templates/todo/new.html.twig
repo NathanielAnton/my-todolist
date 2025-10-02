@@ -1,11 +1,25 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Todo{% endblock %}
+{% block title %}Nouvelle Tâche{% endblock %}
 
 {% block body %}
-    <h1>Create new Todo</h1>
-
-    {{ include('todo/_form.html.twig') }}
-
-    <a href="{{ path('app_todo_index') }}">back to list</a>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Créer une nouvelle tâche</h1>
+                </div>
+                <div class="card-body">
+                    {{ include('todo/_form.html.twig') }}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ path('app_todo_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

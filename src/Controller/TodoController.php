@@ -40,7 +40,7 @@ final class TodoController extends AbstractController
             return $this->redirectToRoute('app_todo_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('todo/new.html.twig', [
+        return $this->render('todo/new.html.twig', [
             'todo' => $todo,
             'form' => $form,
         ]);
